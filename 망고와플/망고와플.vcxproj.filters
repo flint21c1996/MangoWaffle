@@ -25,6 +25,9 @@
     <Filter Include="CodingTest\Array">
       <UniqueIdentifier>{16a35356-9920-40da-94b2-575f274fb372}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CodingTest\Stack">
+      <UniqueIdentifier>{7dad852b-9153-4ca9-b99c-0a19914986b3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="코테.cpp">
@@ -44,6 +47,9 @@
     </ClCompile>
     <ClCompile Include="arrayCodingTest.cpp">
       <Filter>CodingTest\Array</Filter>
+    </ClCompile>
+    <ClCompile Include="stackCodingTest.cpp">
+      <Filter>CodingTest\Stack</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
