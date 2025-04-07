@@ -1,34 +1,47 @@
 #include <iostream>
-#include <string>
-using namespace std;
+using namespace std;;
 
-class A
+///try-catch
+class Sung
 {
 public:
-	A() 
+	~Sung()
 	{
-		Init();
-	};
-	void Init()
-	{
-		virtual_method();
+		if (!IsClose())
+		{
+			try
+			{
+				IsClose();
+				throw runtime_error("예외 발생");
+			}
+			catch (runtime_error& e)
+			{
+				cout << e.what() << endl;
+				cout << "닫히지 않았습니다." << endl;
+			} 
+		}
 	}
 
-	virtual void virtual_method() = 0;
-};
-
-class B : public A
-{
-public:
-	B() {};
-
-	virtual void virtual_method()
+	//잘 닫혔는지 확인하는 함수.
+	bool IsClose()
 	{
-		cout << "Hello" << endl;
+		return misClose;
 	}
+
+	//멤버를 닫는 함수를 만든다.
+	void close()
+	{
+		misClose = true;
+	}
+	bool misClose = false;
 };
 
 int main()
 {
-	B b;
+	Sung s;
+
+
+
+	return 0;
+
 }
