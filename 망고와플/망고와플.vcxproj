@@ -148,6 +148,7 @@
     <ClCompile Include="자주쓰는 함수들.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="잘 몰랐던 것들에 대해.cpp" />
     <ClCompile Include="코테.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>

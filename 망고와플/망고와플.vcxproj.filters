@@ -28,6 +28,9 @@
     <Filter Include="CodingTest\Stack">
       <UniqueIdentifier>{7dad852b-9153-4ca9-b99c-0a19914986b3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="잘 몰랐던 것들에 대해">
+      <UniqueIdentifier>{fc4424dc-99fb-4f66-a544-c01fd8f2783a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="코테.cpp">
@@ -50,6 +53,9 @@
     </ClCompile>
     <ClCompile Include="stackCodingTest.cpp">
       <Filter>CodingTest\Stack</Filter>
+    </ClCompile>
+    <ClCompile Include="잘 몰랐던 것들에 대해.cpp">
+      <Filter>잘 몰랐던 것들에 대해</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
