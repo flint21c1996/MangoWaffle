@@ -11,6 +11,8 @@ private:
 	std::vector<int> heap;
 
 public:
+	int asd();
+public:
 	//부모의 index를 반환한다.
 	int ParentIndex(int _index)
 	{
