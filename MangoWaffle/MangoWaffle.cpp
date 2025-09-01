@@ -1,75 +1,43 @@
-﻿#include <string>
-#include <vector>
-#include <stack>
+﻿//요세푸스 문제
+/*
+N명의 사람이 원 형태로 서있다. 각 사람은 1부터 N까지 번호표를 갖고있다. 그리고 임의의 숫자 K가 주어졌을 때 다음과 같이 사람을 없앤다.
+- 1번 번호표를 가진 사람 기준 시계 방향으로 K번째 사람을 없앤다.
+- 없앤 사람 다음 사람을 기준으로 하고 다시 K번째 사람을 없앤다.
+N과 K가 주어질때 마지막에 살아있는 사람의 번호를 반환하는 Solution()함수를 구현하시오.
+*/
+
+#include<iostream>
+#include <queue>
 using namespace std;
 
-vector<int> solution(vector<int> prices) {
-	//return값이 들어갈 백터
-	vector<int> answer(prices.size(), -1);
-	//1. 우선 반복문을 돌면서 스택에 넣는다.
-	//2. 스택의 맨위가 현재보다 작을 경우 pop을 하고 해당 숫자가 몇개인지 계산한다.
-	//3. 그 수 만큼 반복문을 돌리며 return배열을 채운다.
 
-	//int 스택
-	stack<int> tempStack;
-	//popCount
-	int popCount = 0;
+int solution(int N, int k)
+{
+	int result;
 
-	for (int i = 0; i < prices.size(); i++)
+	queue<int> q;
+	
+	for (int i = 1; i <= N; i++)
 	{
-		//스택이 비어있다면..? 바로 넣어준다.
-		if (tempStack.empty())
-		{
-			tempStack.push(prices[i]);
-			continue;
-		}
-		//스택의 맨위보다 현재 초의 가격이 높다면? 스택에 push
-		else if (tempStack.top() <= prices[i])
-		{
-			tempStack.push(prices[i]);
-		}
-		//스택의 맨위보다 현재 초의 가격이 낮다면? 스택에서 pop을 해주고 int popCount를 하나 증가시킨다.
-		else
-		{
-			for (int j = i; !tempStack.empty()&&tempStack.top() > prices[i]; j--)
-			{
-				tempStack.pop();
-				popCount++;
-			}
-			for (int k = 1; popCount != 0;)
-			{
-				if (answer[i - k] == -1)
-				{
-					answer[i - k] = k;
-					popCount--;
-				}
-				k++;
-
-			}
-			tempStack.push(prices[i]);
-		}
-
+		q.push(i);
 	}
-	int index = prices.size()-1;
-	int temp = 0;
-	while (!tempStack.empty())
+
+	while (q.size() != 1)
 	{
-		if (answer[index] == -1)
+		for (int i = 1; i < k; i++)
 		{
-			answer[index] = temp;
-			tempStack.pop();
-
+			int temp = q.front();
+			q.pop();
+			q.push(temp);
 		}
-		index--;
-		temp++;
+		q.pop();
 	}
-	return answer;
+	result = q.front();
+	return result;
+
 }
 
-int main()
+void main()
 {
-	vector<int> prices = { 2,3,4,2,2,1,3 };
-	vector<int> answer = solution(prices);
-
-	int a = 10;
+	cout << solution(5, 2) << endl;
 }
