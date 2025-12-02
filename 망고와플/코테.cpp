@@ -1211,6 +1211,912 @@ vector<int> solution(vector<int> progresses, vector<int> speeds) {
 	return answer;
 }
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+#include <iostream>
+#include <vector>
+using namespace std;
+
+//1번문제 이건 투포인터를 써서 양끝에서 중앙을 향해 배열을 순회하는 방식으로 설계하였다.
+//하지만 배열 자체를 바꿀 필요는 없으므로 그냥 카운팅 풀이를 하는게 나아보이기도 한다.
+int Solution1(vector<int>& arr)
+{
+	int E = 0;
+	for (int x : arr)
+	{
+		if ((x & 1) == 0)
+		{
+			++E;		//짝수 개수 증가.
+		}
+	}
+
+	int SwapNum = 0;
+	for (int i = 0; i < E; ++i)
+	{
+		if (arr[i] & 1)
+		{
+			++SwapNum;
+		}
+	}
+
+	return SwapNum;
+}
+
+
+void main()
+{
+	vector<int> a = { 8,3,2,1,4,7 };
+
+	cout << Solution1(a) << endl;
+}
+//////////////////////////////////////////////////////////////////////////
+///4번문제
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int minDeletions(vector<int>& arr)
+{
+	int n = (int)arr.size();
+	if (n <= 2) return 0; // 원소 2개 이하는 이미 '직전' 상태
+
+	// 비내림차순 LIS
+	vector<int> tails;
+	tails.reserve(n);
+	for (int x : arr) {
+		auto it = upper_bound(tails.begin(), tails.end(), x);
+		if (it == tails.end()) tails.push_back(x);
+		else *it = x;
+	}
+	int L = (int)tails.size();
+	int keep = min(n, L + 1);
+	return n - keep;
+}
+
+int main()
+{
+	vector<int> arr = { 3, 4, 2, 5, 1, 1, 2, 3, 4, 9, 9, 1, 1, 1, 10, 11, 12, 23, 3, 4, 6, 7, 2, 6 };
+	cout << minDeletions(arr) << endl; //
+
+
+	vector<int> arr1 = { 3, 4, 2, 5, 1 };
+	cout << minDeletions(arr1) << endl; // 기대: 1 (1 또는 2 삭제)
+
+	vector<int> arr2 = { 1, 2, 3, 4, 5 };
+	cout << minDeletions(arr2) << endl; // 기대: 0 (이미 정렬됨)
+
+	vector<int> arr3 = { 10, 1, 2, 3, 4 };
+	cout << minDeletions(arr3) << endl; // 기대: 0 (10 삭제)
+
+	vector<int> arr4 = { 3, 2, 1 };
+	cout << minDeletions(arr4) << endl; // 기대: 1 (원소 하나 삭제로 해결)
+
+	return 0;
+
+}
+//////////////////////////////////////////////////////////////////////////
+///5번 문제 ------------------------------------------------------------------
+#include <iostream>
+#include <string>
+#include <unordered_map>
+using namespace std;
+
+// programmer 문자 요구량 초기화
+unordered_map<char, int> getNeed() {
+	return {
+		{'p', 1},
+		{'r', 3},
+		{'o', 1},
+		{'g', 1},
+		{'a', 1},
+		{'m', 2},
+		{'e', 1}
+	};
+}
+
+// 왼쪽에서부터 돌면서 programmer를 구성할 수 있는 마지막 인덱스 반환
+int findIndexLeft(const string& s) {
+	auto need = getNeed();
+	int remain = 10; // 총 필요한 문자 개수
+	for (int i = 0; i < (int)s.size(); i++) {
+		char c = tolower(s[i]); // 대소문자 구분 안하려면 tolower
+		if (need.count(c) && need[c] > 0) {
+			need[c]--;
+			remain--;
+			if (remain == 0) return i; // 모든 문자를 다 채운 순간
+		}
+	}
+	return -1; // 못 만든 경우
+}
+
+// 오른쪽에서부터 돌면서 programmer를 구성할 수 있는 첫 인덱스 반환
+int findIndexRight(const string& s) {
+	auto need = getNeed();
+	int remain = 10;
+	for (int i = (int)s.size() - 1; i >= 0; i--) {
+		char c = tolower(s[i]);
+		if (need.count(c) && need[c] > 0) {
+			need[c]--;
+			remain--;
+			if (remain == 0) return i; // 모든 문자를 다 채운 순간
+		}
+	}
+	return -1;
+}
+
+// 최종 함수
+int programmerStrings(const string& s) {
+	int leftEnd = findIndexLeft(s);
+	int rightStart = findIndexRight(s);
+
+	if (leftEnd == -1 || rightStart == -1) return 0; // 못 만든 경우
+	if (rightStart <= leftEnd) return 0;             // 겹치면 0
+	return rightStart - leftEnd - 1;                 // 두 문자열 사이 인덱스 차이
+}
+
+int main() {
+	string s = "programmerxxasdfxprozmedsfasdfrqgram";
+
+	cout << "Between count: " << programmerStrings(s) << endl; // 3
+
+	return 0;
+}
+//////////////////////////////////////////////////////////////////////////
+///6번 문제
+#include <iostream>
+#include <queue>
+#include <vector>
+
+using namespace std;
+
+int findMinWeight(vector<int>& weight, int d)
+{
+	priority_queue<int> pq;
+
+	//모든 초콜릿 삽입
+	for (auto e : weight)
+	{
+		pq.push(e);
+	}
+
+	//d일 동안 반복
+	for (int i = 0; i < d; i++)
+	{
+		int top = pq.top();
+		pq.pop();
+		int remain = top - top / 2;	//남는 무게
+		pq.push(remain);
+	}
+
+	//남은 무게 합 구하기
+	int sum = 0;
+
+	while (!pq.empty())
+	{
+		sum += pq.top();
+		pq.pop();
+	}
+
+	return sum;
+}
+
+int main()
+{
+	vector<int> weight = { 30, 20, 25 };
+	int d = 4;
+	cout << findMinWeight(weight, d);
+
+}
+//////////////////////////////////////////////////////////////////////////
+///3번문제
+#include <iostream>
+#include <vector>
+#include <deque>
+#include <algorithm>
+using namespace std;
+
+int sumVips(vector<int>& score, int guilder_count, int k)
+{
+	//점수배열 데큐에 복사.
+	deque<int> dq(score.begin(), score.end());
+
+	long long total = 0;	//길드원들의 점수 합.
+
+	//guilder_count만큼 반복
+	for (int t = 0; t < guilder_count; t++)
+	{
+
+		//왼쪽부터 k까지의 최대값, 위치 찾기
+		int left_max = -1;
+		int left_idx = -1;
+
+		for (int i = 0; i < k && i < dq.size(); i++)
+		{
+			if (dq[i] > left_max)
+			{
+				left_max = dq[i];
+				left_idx = i;
+			}
+		}
+
+		//오른쪽부터 k까지의 최대값, 위치 찾기
+		int right_max = -1;
+		int right_idx = -1;
+
+		for (int i = 0; i < k && i < dq.size(); i++)
+		{
+			int index = dq.size() - k + i;
+			if (index >= 0 && dq[index] > right_max)
+			{
+				right_max = dq[index];
+				right_idx = index;
+			}
+		}
+
+		int TargetIndex;
+		if (left_max >= right_max)
+		{
+			TargetIndex = left_idx;
+		}
+		else
+		{
+			TargetIndex = right_idx;
+		}
+
+		total += dq[TargetIndex];
+		dq.erase(dq.begin() + TargetIndex);
+	}
+
+	return total;
+}
+
+
+int main() {
+	vector<int> score = { 8, 21, 8, 15, 5, 30, 21 };
+	int guilder_count = 2;
+	int k = 3;
+	cout << sumVips(score, guilder_count, k) << endl;  // 결과: 51
+	return 0;
+}
+//////////////////////////////////////////////////////////////////////////
+///2번 문제
+#include <iostream>
+#include <vector>
+#include <queue>
+
+using namespace std;
+
+/*
+int s_nodes = 노드의 수
+int s_edges = 선의 수
+vector<int>& s_from = 시작 노드
+vector<int>& s_to = 끝 노드
+*/
+vector<int> nodeDistance(int s_nodes, int s_edges, vector<int>& s_from, vector<int>& s_to)
+{
+	vector<vector<int>> graph(s_nodes);	//노드와 인접한 전점 목록
+	vector<int> degree(s_nodes, 0);		//각 정점의 현재 차수
+
+	for (int i = 0; i < s_edges; i++)
+	{
+		int u = s_from[i];
+		int v = s_to[i];
+
+		graph[u].push_back(v);
+		graph[v].push_back(u);
+		degree[u]++;
+		degree[v]++;
+	}
+
+	queue<int> q;
+	vector<bool> isCycle(s_nodes, true);
+
+	//초기 리프넣기
+	for (int i = 0; i < s_nodes; i++)
+	{
+		if (degree[i] == 1)
+		{
+			q.push(i);
+			isCycle[i] = false;	//사이클에 속하지 않는다.
+		}
+	}
+
+	while (!q.empty())
+	{
+		int cur = q.front();
+		q.pop();
+
+		//cur과 인접한 노드들의 차수를 1 줄인다.
+		for (int next : graph[cur])
+		{
+			if (isCycle[next])	//이미 제거된 노드는 건너뜀.
+			{
+				degree[next]--;
+
+				if (degree[next] == 1)
+				{
+					isCycle[next] = false;
+					q.push(next);
+				}
+			}
+		}
+	}
+	//여기까지오면 isCycle이 true인 노드만 사이클에 남아있다.
+
+	vector<int> dist(s_nodes, -1);
+	queue<int> bfsQ;
+
+	for (int i = 0; i < s_nodes; i++)
+	{
+		if (isCycle[i])
+		{
+			dist[i] = 0;
+			bfsQ.push(i);
+		}
+	}
+
+	while (!bfsQ.empty())
+	{
+		int cur = bfsQ.front();
+		bfsQ.pop();
+
+		for (int next : graph[cur])
+		{
+			if (dist[next] == -1)
+			{
+				dist[next] = dist[cur] + 1;
+				bfsQ.push(next);
+			}
+		}
+	}
+	return dist;
+
+}
+
+// -----------------------------
+int main() {
+	//int s_nodes = 6;
+	//int s_edges = 6;
+
+	//vector<int> s_from = { 0, 1, 0, 2, 0, 1 };
+	//vector<int> s_to = { 1, 2, 2, 4, 3, 5 };
+	// 기대 출력: 0 0 0 1 1 1
+
+	int s_nodes = 7;
+	int s_edges = 7;
+	vector<int> s_from = { 0, 1, 2, 0, 2, 3, 4 };
+	vector<int> s_to = { 1, 2, 0, 3, 4, 5, 6 };
+	// 기대 출력: 0 0 0 1 2 3 4
+
+
+
+	vector<int> ans = nodeDistance(s_nodes, s_edges, s_from, s_to);
+
+	for (int d : ans) cout << d << ' ';
+	cout << '\n';
+	return 0;
+}
+//////////////////////////////////////////////////////////////////////////
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int finalStateSum(vector<pair<int, int>>& operations)
+{
+	if (operations.empty()) return 0;
+
+	//일단 최댓값 먼저 찾기
+	int n = 0;
+	for (auto& op : operations)
+	{
+		n = max(n, op.second);
+	}
+
+	vector<int> temp(n + 2, 0);
+
+	for (auto& op : operations)
+	{
+		int L = op.first;
+		int R = op.second;
+
+		temp[L] ^= 1;		//시작점
+		temp[R + 1] ^= 1;	//끝 위치 다음
+	}
+
+	int answer = 0;
+	int current = 0;
+
+	for (int i = 1; i <= n; i++)
+	{
+		current ^= temp[i];
+		if (current == 1)
+		{
+			answer += i;	//On인 스위치 인덱스 더하기
+		}
+	}
+	return answer;
+}
+
+void main()
+{
+	vector<pair<int, int>> ops = { {1,4}, {2,6}, {1,6} };
+	cout << finalStateSum(ops) << endl;//9
+
+	vector<pair<int, int>> ops2 = { {2,4}, {2,4} };
+	cout << finalStateSum(ops2) << endl;//0
+
+	vector<pair<int, int>> ops3 = { {1,3}, {2,5} };
+	cout << finalStateSum(ops3) << endl;//10
+}
+//////////////////////////////////////////////////////////////////////////
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int finalStateSum(vector<pair<int, int>>& operations)
+{
+	if (operations.empty()) return 0;
+
+	//일단 최댓값 먼저 찾기
+	int n = 0;
+	for (auto& op : operations)
+	{
+		n = max(n, op.second);
+	}
+
+	vector<int> temp(n + 2, 0);
+
+	for (auto& op : operations)
+	{
+		int L = op.first;
+		int R = op.second;
+
+		temp[L] ^= 1;		//시작점
+		temp[R + 1] ^= 1;	//끝 위치 다음
+	}
+
+	int answer = 0;
+	int current = 0;
+
+	for (int i = 1; i <= n; i++)
+	{
+		current ^= temp[i];
+		if (current == 1)
+		{
+			answer += i;	//On인 스위치 인덱스 더하기
+		}
+	}
+	return answer;
+}
+
+#include<queue>
+long long teamFormation(const vector<int>& score, int teamSize, int k)
+{
+	int n = score.size();
+
+	if (n == 0 || teamSize == 0) return 0;
+
+	//(score, index)
+	using Node = pair<int, int>;
+
+	auto cmp = [](const Node& a, const Node& b)
+		{
+			if (a.first != b.first) return a.first < b.first;	//점수 큰게 먼저
+
+			return a.second > b.second;							//인덱스 작인게 먼거
+		};
+
+	priority_queue<Node, vector<Node>, decltype(cmp)> L_queue(cmp);
+	priority_queue<Node, vector<Node>, decltype(cmp)> R_queue(cmp);
+
+	vector<char> used(n, 0);
+	int l = 0;
+	int r = n - 1;
+
+	for (int t = 0; t < k && l <= r; t++)
+	{
+		L_queue.push({ score[l], l++ });
+	}
+
+	for (int t = 0; t < k && r >= l; t++)
+	{
+		R_queue.push({ score[r], r-- });
+	}
+
+	long long answer = 0;
+
+	auto cleanTop = [&](auto& PQ)
+		{
+			while (!PQ.empty() && used[PQ.top().second])
+			{
+				PQ.pop();
+			}
+		};
+
+	for (int pick = 0; pick < teamSize; pick++)
+	{
+		cleanTop(L_queue);
+		cleanTop(R_queue);
+
+		if (L_queue.empty() && R_queue.empty())
+		{
+			break;
+		}
+
+		bool takeLeft = false;
+		if (R_queue.empty())
+		{
+			takeLeft = true;
+		}
+		else if (L_queue.empty())
+		{
+			takeLeft = false;
+		}
+		else
+		{
+			auto a = L_queue.top(), b = R_queue.top();
+			if (a.first > b.first)
+			{
+				takeLeft = true;
+			}
+			else if (a.first < b.first)
+			{
+				takeLeft = false;
+			}
+			else
+			{
+				takeLeft = (a.second < b.second);
+			}
+		}
+
+		if (takeLeft)
+		{
+			auto [tempscore, index] = L_queue.top();
+			L_queue.pop();
+
+			if (used[index])
+			{
+				--pick;
+				continue;
+			}
+
+			used[index] = 1;
+			answer += tempscore;
+
+			if (l <= r)
+			{
+				L_queue.push({ score[l], l });
+				++l;
+			}
+		}
+		else
+		{
+			auto [tempscore, index] = R_queue.top();
+			R_queue.pop();
+
+			if (used[index])
+			{
+				--pick;
+				continue;
+			}
+
+			used[index] = 1;
+			answer += tempscore;
+
+			if (r >= l)
+			{
+				R_queue.push({ score[r], r });
+				--r;
+			}
+		}
+	}
+	return answer;
+}
+
+
+const long long INF = (long long)4e18;
+
+// 다익스트라: start → 모든 노드까지 최단거리
+vector<long long> dijkstra(int nodeCount, int startNode, const vector<vector<pair<int, int>>>& graph) {
+	vector<long long> dist(nodeCount + 1, INF);
+	priority_queue<pair<long long, int>, vector<pair<long long, int>>, greater<pair<long long, int>>> pq;
+	dist[startNode] = 0;
+	pq.push({ 0, startNode });
+
+	while (!pq.empty()) {
+		auto [curDist, curNode] = pq.top(); pq.pop();
+		if (curDist != dist[curNode]) continue;
+
+		for (auto [nextNode, edgeWeight] : graph[curNode]) {
+			long long newDist = curDist + edgeWeight;
+			if (newDist < dist[nextNode]) {
+				dist[nextNode] = newDist;
+				pq.push({ newDist, nextNode });
+			}
+		}
+	}
+	return dist;
+}
+
+vector<string> checkRoutes(
+	int nodeCount,
+	const vector<int>& edgeFrom,
+	const vector<int>& edgeTo,
+	const vector<int>& edgeWeight
+) {
+	int edgeCount = (int)edgeFrom.size();
+
+	// 인접리스트 구성
+	vector<vector<pair<int, int>>> graph(nodeCount + 1);
+	for (int i = 0; i < edgeCount; ++i) {
+		int u = edgeFrom[i], v = edgeTo[i], w = edgeWeight[i];
+		graph[u].push_back({ v, w });
+		graph[v].push_back({ u, w });
+	}
+
+	// 다익스트라 실행 (시작노드=1, 목표노드=nodeCount)
+	vector<long long> distFromStart = dijkstra(nodeCount, 1, graph);
+	vector<long long> distFromEnd = dijkstra(nodeCount, nodeCount, graph);
+	long long shortestDistance = distFromStart[nodeCount];
+
+	vector<string> result(edgeCount, "no");
+	if (shortestDistance == INF) return result; // 연결 불가 → 전부 "no"
+
+	for (int i = 0; i < edgeCount; ++i) {
+		int u = edgeFrom[i], v = edgeTo[i], w = edgeWeight[i];
+		bool onShortestPath = false;
+
+		if (distFromStart[u] != INF && distFromEnd[v] != INF &&
+			distFromStart[u] + w + distFromEnd[v] == shortestDistance) {
+			onShortestPath = true;
+		}
+		if (distFromStart[v] != INF && distFromEnd[u] != INF &&
+			distFromStart[v] + w + distFromEnd[u] == shortestDistance) {
+			onShortestPath = true;
+		}
+
+		result[i] = onShortestPath ? "yes" : "no";
+	}
+	return result;
+}
+static void printVec(const vector<string>& v) {
+	for (auto& s : v) cout << s << "\n";
+}
+
+void main()
+{
+	vector<pair<int, int>> ops = { {1,4}, {2,6}, {1,6} };
+	cout << finalStateSum(ops) << endl;//9
+
+	vector<pair<int, int>> ops2 = { {2,4}, {2,4} };
+	cout << finalStateSum(ops2) << endl;//0
+
+	vector<pair<int, int>> ops3 = { {1,3}, {2,5} };
+	cout << finalStateSum(ops3) << endl;//10
+
+
+	// 예시 1 (문제 예시)
+	vector<int> s1 = { 10,20,10,15,5,30,20 };
+	cout << teamFormation(s1, 2, 3) << "\n"; // 50
+
+	// 예시 2
+	vector<int> s2 = { 5,5,5 };
+	cout << teamFormation(s2, 2, 2) << "\n"; // 10 (동점이면 인덱스 작은 쪽부터)
+
+	// 예시 3 (남은 인원 < k 인 상황)
+	vector<int> s3 = { 7,1,9 };
+	cout << teamFormation(s3, 3, 5) << "\n"; // 17 (9+7+1)
+
+
+	// 1) 직통이 최단 (기본)
+	{
+		int n = 5;
+		vector<int> f = { 1,2,3,4,3,1 };
+		vector<int> t = { 2,3,4,5,5,5 };
+		vector<int> w = { 1,2,1,1,1,3 };
+		// 최단거리: 1-5(3). 결과: ..... yes 만 마지막
+		auto r = checkRoutes(n, f, t, w);
+		printVec(r);
+		// 기대:
+		// no
+		// no
+		// no
+		// no
+		// no
+		// yes
+	}
+
+	// 2) 1에서 N 도달 불가
+	{
+		int n = 4;
+		vector<int> f = { 1,3 };
+		vector<int> t = { 2,4 };
+		vector<int> w = { 1,1 };
+		auto r = checkRoutes(n, f, t, w);
+		printVec(r);
+		// 기대:
+		// no
+		// no
+	}
+
+	// 3) 최단경로 2개 (모든 간선이 어떤 최단경로에는 포함)
+	{
+		int n = 4;
+		vector<int> f = { 1,2,1,3 };
+		vector<int> t = { 2,4,3,4 };
+		vector<int> w = { 1,1,1,1 };
+		auto r = checkRoutes(n, f, t, w);
+		printVec(r);
+		// 기대:
+		// yes
+		// yes
+		// yes
+		// yes
+	}
+
+
+}
+//////////////////////////////////////////////////////////////////////////
+/*
+깊이 우선탐색으로 모든 그래프의 노드를 순회하는 함수 solution을 만드시오.
+시작 노드는 문자형 START로 주어진다. 그래프 배열은 [출발, 도착] 노드 쌍들이 들어있는 배열입니다.
+반환값은 그래프의 시작노드부터 모든 노드를 깊이 우선탐색으로 탐색한 경로가 순서대로 저장된 배열입니다.
+
+ex)
+graph = {{A,B}, {B,C}, {C,D}, {D,E}}
+start = 'A'
+result = {A,B,C,D,E}
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+using namespace std;
+
+unordered_map<char, vector<char>> adjlist;
+unordered_set<char> visited;
+vector<char> result;
+
+void dfs(char node)
+{
+	visited.insert(node);
+	result.push_back(node);
+
+	//현재 노드와 인접한 노드중, 방문하지 않은 노드에 깊이우선탐색을 계속 진행
+	for (auto neighbor : adjlist[node])
+	{
+		if (visited.find(neighbor) == visited.end())
+			dfs(neighbor);
+	}
+}
+
+vector<char> solution(vector<pair<char, char>>graph, char start)
+{
+	//인접리스트 생성
+	for (auto e : graph)
+	{
+		adjlist[e.first].push_back(e.second);
+	}
+
+	dfs(start);
+	return result;
+}
+
+int main()
+{
+	vector<pair<char, char>> graph = { {'A','B'},{'B','C'},{'B','E'}, {'C','F'}, {'E','F'} };
+	char start = 'A';
+	vector<char> result = solution(graph, start);
+
+	for (auto e : result)
+	{
+		cout << e << ' ';
+	}
+	return 0;
+}
+//////////////////////////////////////////////////////////////////////////
+
+가로N개 세로N개의 방으로 이루어진 정사각형 미로가있고 각 방마다 상하좌우로 유도하는 화살표가 있을때 화살표의 방향대로 따라가면 미로밖으로 벗어나지 못하는 방의 개수를 구하라.입력 - 첫째줄에 미로의 크기를 의미하는 정수 N이 주어진다.둘째 줄부터 Nㅐ의 줄에 걸쳐 미로의 바닥에 적힌 화살표의 방향이 각 줄마다 N개의 문자로 공백없이 주어진다.I번째 줄에서 J번째로 주어지는 문자는 미로의 1행j열에 위치한 방에 붙어있는 화살표방향을 의미한다.화살표의 방향은 L, R, U, D 네개의 문자로 주어지고 이동한 위치가 미로의 범위를 벗어나는 경우 미로를 탈출함을 의미한다.예시1 4 DRDU DULL RRDU LUDU 일때 출력 7
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int N;
+vector<string> board;
+vector<vector<int>> state;
+// 0 = 미방문, 1 = 방문중(스택), 2 = 탈출 가능, 3 = 사이클(탈출 불가능)
+
+int dx[256], dy[256];
+
+int dfs(int x, int y) {
+	if (state[x][y] == 1) return state[x][y] = 3;      // 사이클
+	if (state[x][y] == 2 || state[x][y] == 3) return state[x][y];
+
+	state[x][y] = 1; // 방문중
+
+	int nx = x + dx[board[x][y]];
+	int ny = y + dy[board[x][y]];
+
+	if (nx < 0 || ny < 0 || nx >= N || ny >= N) {
+		return state[x][y] = 2; // 탈출 가능
+	}
+
+	int result = dfs(nx, ny);
+	if (result == 3) return state[x][y] = 3;
+	return state[x][y] = 2;
+}
+
+int main() {
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	cin >> N;
+	board.resize(N);
+	for (int i = 0; i < N; i++) cin >> board[i];
+
+	dx['L'] = 0; dy['L'] = -1;
+	dx['R'] = 0; dy['R'] = 1;
+	dx['U'] = -1; dy['U'] = 0;
+	dx['D'] = 1; dy['D'] = 0;
+
+	state.assign(N, vector<int>(N, 0));
+
+	int cnt = 0;
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			if (state[i][j] == 0) dfs(i, j);
+		}
+	}
+
+	for (int i = 0; i < N; i++)
+		for (int j = 0; j < N; j++)
+			if (state[i][j] == 3) cnt++;
+
+	cout << cnt;
+}
+
+세계적인 도둑은 손만 댔다하면 그 어떤 보안 시트템도 손쉽게 무력화 시키는것으로 유명하다 어떠한 금고를 풀어야하는데 고전적인 자물쇠 하나로 잠겨있다. 1. 이 자물쇠는 N자리의 비밀번호를 가지고있고, 다이얼의 눈금을 총M칸돌려서 해제할수 있다. 2. 다이얼은 총 10개의 눈금이 원형으로 배치되어있고, 각 눈금에는 0부터 9까지의 번호가 시계방향으로 쓰여있다.특정 숫자를 입력하기 위해서는 다이얼을 돌려서 그 숫자가 써진 눈금을 금속 핀아래에 위치시켜야한다.처음에 금속핀 아래에는 0이써진 눈금이있고, 다이얼을 돌릴때는 시계반대방향으로만 돌릴수 있다.숫자를 입력하고 나면 다이얼은 더 움직이지 않고 가만히있는다.예를들어 현재 금속핀 아래에 숫자 0이 있고 다음에 9를 입력하고자 할때에는 다이얼을 시계반대방향으로 아홉칸 움직여야한다. 4. 단, 숫자를 입력하지 않고 다이얼을 한번에 열칸 이상 움직일수는 없다.이때 도둑은 조건을 만족하는 비밀번호를 모두 입력해보려고 한다 할때 몇가지의 비밀번호를 입력해야할지 구하라 경우의 수가 너무 많을수 있으니 이를 10 ^ 9 + 7로 나눈 나머지를 구하라.입력 1 <= N <= 200 1 <= M <= 1000 입력으로 주어지는 수는 모두 정수이다.이거 풀어봐 코드만 줘봐 C++17로 위에 포함시켜야하는 헤더까지 싹
+
+#include <bits/stdc++.h> using namespace std;
+
+int main() {
+	ios::sync_with_stdio(false); cin.tie(nullptr);
+
+	int N, M;
+	if (!(cin >> N >> M)) return 0;
+	const long long MOD = 1000000007LL;
+
+	vector<vector<long long>> dp(10, vector<long long>(M + 1, 0));
+	dp[0][0] = 1; // before entering any digit, dial at 0 with cost 0
+
+	for (int i = 0; i < N; ++i) {
+		vector<vector<long long>> ndp(10, vector<long long>(M + 1, 0));
+		for (int x = 0; x < 10; ++x) {
+			for (int j = 0; j <= M; ++j) {
+				long long ways = dp[x][j];
+				if (!ways) continue;
+				for (int c = 0; c <= 9; ++c) {
+					int y = (x + c) % 10;       // counter-clockwise increases digit
+					int nj = j + c;
+					if (nj > M) break;
+					ndp[y][nj] = (ndp[y][nj] + ways) % MOD;
+				}
+			}
+		}
+		dp.swap(ndp);
+	}
+
+	long long ans = 0;
+	for (int x = 0; x < 10; ++x) {
+		ans = (ans + dp[x][M]) % MOD;
+	}
+	cout << ans << "\n";
+	return 0;
+
+}
+//////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
 
